@@ -7,7 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		DAA1CA652B6B99F60067933F /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = DAA1CA642B6B99F60067933F /* main.c */; };
+		DAA1CA712B6B9A1E0067933F /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = DAA1CA6E2B6B9A1D0067933F /* main.c */; };
+		DAA1CA722B6B9A1E0067933F /* prg.cl in Sources */ = {isa = PBXBuildFile; fileRef = DAA1CA702B6B9A1E0067933F /* prg.cl */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -24,7 +25,12 @@
 
 /* Begin PBXFileReference section */
 		DAA1CA612B6B99F60067933F /* elas2 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = elas2; sourceTree = BUILT_PRODUCTS_DIR; };
-		DAA1CA642B6B99F60067933F /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		DAA1CA6B2B6B9A1D0067933F /* ocl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ocl.h; sourceTree = "<group>"; };
+		DAA1CA6C2B6B9A1D0067933F /* msh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = msh.h; sourceTree = "<group>"; };
+		DAA1CA6D2B6B9A1D0067933F /* slv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = slv.h; sourceTree = "<group>"; };
+		DAA1CA6E2B6B9A1D0067933F /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		DAA1CA6F2B6B9A1E0067933F /* io.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = io.h; sourceTree = "<group>"; };
+		DAA1CA702B6B9A1E0067933F /* prg.cl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.opencl; path = prg.cl; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,7 +63,12 @@
 		DAA1CA632B6B99F60067933F /* elas2 */ = {
 			isa = PBXGroup;
 			children = (
-				DAA1CA642B6B99F60067933F /* main.c */,
+				DAA1CA6C2B6B9A1D0067933F /* msh.h */,
+				DAA1CA6B2B6B9A1D0067933F /* ocl.h */,
+				DAA1CA6D2B6B9A1D0067933F /* slv.h */,
+				DAA1CA6F2B6B9A1E0067933F /* io.h */,
+				DAA1CA6E2B6B9A1D0067933F /* main.c */,
+				DAA1CA702B6B9A1E0067933F /* prg.cl */,
 			);
 			path = elas2;
 			sourceTree = "<group>";
@@ -119,7 +130,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DAA1CA652B6B99F60067933F /* main.c in Sources */,
+				DAA1CA722B6B9A1E0067933F /* prg.cl in Sources */,
+				DAA1CA712B6B9A1E0067933F /* main.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
