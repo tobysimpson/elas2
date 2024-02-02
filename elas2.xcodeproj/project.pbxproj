@@ -26,7 +26,7 @@
 /* Begin PBXFileReference section */
 		DAA1CA612B6B99F60067933F /* elas2 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = elas2; sourceTree = BUILT_PRODUCTS_DIR; };
 		DAA1CA6B2B6B9A1D0067933F /* ocl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ocl.h; sourceTree = "<group>"; };
-		DAA1CA6C2B6B9A1D0067933F /* msh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = msh.h; sourceTree = "<group>"; };
+		DAA1CA6C2B6B9A1D0067933F /* prm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = prm.h; sourceTree = "<group>"; };
 		DAA1CA6D2B6B9A1D0067933F /* slv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = slv.h; sourceTree = "<group>"; };
 		DAA1CA6E2B6B9A1D0067933F /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		DAA1CA6F2B6B9A1E0067933F /* io.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = io.h; sourceTree = "<group>"; };
@@ -63,7 +63,7 @@
 		DAA1CA632B6B99F60067933F /* elas2 */ = {
 			isa = PBXGroup;
 			children = (
-				DAA1CA6C2B6B9A1D0067933F /* msh.h */,
+				DAA1CA6C2B6B9A1D0067933F /* prm.h */,
 				DAA1CA6B2B6B9A1D0067933F /* ocl.h */,
 				DAA1CA6D2B6B9A1D0067933F /* slv.h */,
 				DAA1CA6F2B6B9A1E0067933F /* io.h */,

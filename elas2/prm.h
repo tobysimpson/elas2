@@ -1,78 +1,85 @@
 //
-//  msh.h
+//  prm.h
 //  frac2
 //
 //  Created by Toby Simpson on 01.02.24.
 //
 
-#ifndef msh_h
-#define msh_h
+#ifndef prm_h
+#define prm_h
 
 
 //object
-struct msh_obj
+struct prm_obj
 {
     cl_int3     ele_dim;
     cl_int3     vtx_dim;
-    cl_float4   dx;
-    cl_float8   mat_prm;
     
     int         ne_tot;
     int         nv_tot;
+    
+    cl_float3   x0;
+    cl_float3   x1;
+    cl_float4   dx;
+    
+    cl_float8   mat;
 };
 
 
 //init
-void msh_init(struct msh_obj *msh)
+void prm_init(struct prm_obj *prm)
 {
     //dim
-    msh->ele_dim.x = 4;
-    msh->ele_dim.y = msh->ele_dim.x;
-    msh->ele_dim.z = msh->ele_dim.x;
+    prm->ele_dim.x = 1;
+    prm->ele_dim.y = prm->ele_dim.x;
+    prm->ele_dim.z = prm->ele_dim.x;
     
-    msh->vtx_dim = (cl_int3){msh->ele_dim.x+1, msh->ele_dim.y+1, msh->ele_dim.z+1};
+    prm->vtx_dim = (cl_int3){prm->ele_dim.x+1, prm->ele_dim.y+1, prm->ele_dim.z+1};
     
-    printf("ele_dim %d %d %d\n", msh->ele_dim.x, msh->ele_dim.y, msh->ele_dim.z);
-    printf("vtx_dim %d %d %d\n", msh->vtx_dim.x, msh->vtx_dim.y, msh->vtx_dim.z);
+    printf("ele_dim %d %d %d\n", prm->ele_dim.x, prm->ele_dim.y, prm->ele_dim.z);
+    printf("vtx_dim %d %d %d\n", prm->vtx_dim.x, prm->vtx_dim.y, prm->vtx_dim.z);
     
-    //dx, dt
-    msh->dx.x = 1e+0f/(float)msh->ele_dim.x;
-    msh->dx.y = 1e+0f/(float)msh->ele_dim.y;
-    msh->dx.z = 1e+0f/(float)msh->ele_dim.z;
-    msh->dx.w = 1e-1f;
+    //x1,dx, dt
+    prm->x0 = (cl_float3){0e0f, 0e0f, 0e0f};
+    prm->x1 = (cl_float3){1e0f, 1e0f, 1e0f};
     
-    printf("dx %+f %+f %+f %+f\n", msh->dx.x, msh->dx.y, msh->dx.z, msh->dx.w);
+    prm->dx.x = (prm->x1.x - prm->x0.x)/(float)prm->ele_dim.x;
+    prm->dx.y = (prm->x1.x - prm->x0.x)/(float)prm->ele_dim.y;
+    prm->dx.z = (prm->x1.x - prm->x0.x)/(float)prm->ele_dim.z;
+    prm->dx.w = 1e-1f;
+    
+    printf("dx %+f %+f %+f %+f\n", prm->dx.x, prm->dx.y, prm->dx.z, prm->dx.w);
     
     //material params
-    msh->mat_prm.s0 = 1e-0f;     //lamé      lambda
-    msh->mat_prm.s1 = 1e-0f;     //lamé      mu
-    msh->mat_prm.s2 = 1e+0f;     //density   rho     mg/mm^3
-    msh->mat_prm.s3 = 1e-2f;     //gravity   g       mm/ms
-    msh->mat_prm.s4 = 0e+0f;
-    msh->mat_prm.s5 = 0e+0f;
-    msh->mat_prm.s6 = 0e+0f;
-    msh->mat_prm.s7 = 0e+0f;
+    prm->mat.s0 = 1e-0f;     //lamé      lambda
+    prm->mat.s1 = 1e-0f;     //lamé      mu
+    prm->mat.s2 = 1e+0f;     //density   rho     mg/mm^3
+    prm->mat.s3 = 1e-2f;     //gravity   g       mm/ms
+    prm->mat.s4 = 0e+0f;
+    prm->mat.s5 = 0e+0f;
+    prm->mat.s6 = 0e+0f;
+    prm->mat.s7 = 0e+0f;
 
     
-//    printf("mat_prm %e %e %e %e\n", msh->mat_prm.s0, msh->mat_prm.s1, msh->mat_prm.z, msh->mat_prm.w);
-    printf("mat_prm.s0 %f\n", msh->mat_prm.s0);
-    printf("mat_prm.s1 %f\n", msh->mat_prm.s1);
-    printf("mat_prm.s2 %f\n", msh->mat_prm.s2);
-    printf("mat_prm.s3 %f\n", msh->mat_prm.s3);
-    printf("mat_prm.s4 %f\n", msh->mat_prm.s4);
-    printf("mat_prm.s5 %f\n", msh->mat_prm.s5);
-    printf("mat_prm.s6 %f\n", msh->mat_prm.s6);
-    printf("mat_prm.s7 %f\n", msh->mat_prm.s7);
+//    printf("mat %e %e %e %e\n", msh->mat.s0, msh->mat.s1, msh->mat.z, msh->mat.w);
+    printf("mat.s0 %f\n", prm->mat.s0);
+    printf("mat.s1 %f\n", prm->mat.s1);
+    printf("mat.s2 %f\n", prm->mat.s2);
+    printf("mat.s3 %f\n", prm->mat.s3);
+    printf("mat.s4 %f\n", prm->mat.s4);
+    printf("mat.s5 %f\n", prm->mat.s5);
+    printf("mat.s6 %f\n", prm->mat.s6);
+    printf("mat.s7 %f\n", prm->mat.s7);
     
     //totals
-    msh->ne_tot = msh->ele_dim.x*msh->ele_dim.y*msh->ele_dim.z;
-    msh->nv_tot = msh->vtx_dim.x*msh->vtx_dim.y*msh->vtx_dim.z;
+    prm->ne_tot = prm->ele_dim.x*prm->ele_dim.y*prm->ele_dim.z;
+    prm->nv_tot = prm->vtx_dim.x*prm->vtx_dim.y*prm->vtx_dim.z;
     
-    printf("ne_tot=%d\n", msh->ne_tot);
-    printf("nv_tot=%d\n", msh->nv_tot);
+    printf("ne_tot=%d\n", prm->ne_tot);
+    printf("nv_tot=%d\n", prm->nv_tot);
     
     return;
 }
 
 
-#endif /* msh_h */
+#endif /* prm_h */

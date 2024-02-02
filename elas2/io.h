@@ -34,7 +34,7 @@ void wrt_raw(void *ptr, size_t n, size_t bytes, char *file_name)
 
 
 //write
-void wrt_vtk(struct msh_obj *msh, struct ocl_obj *ocl, int k)
+void wrt_vtk(struct prm_obj *prm, struct ocl_obj *ocl, int k)
 {
 
     FILE* file1;
@@ -51,7 +51,7 @@ void wrt_vtk(struct msh_obj *msh, struct ocl_obj *ocl, int k)
     fprintf(file1,"grid1\n");
     fprintf(file1,"ASCII\n");
     fprintf(file1,"DATASET STRUCTURED_GRID\n");
-    fprintf(file1,"DIMENSIONS %d %d %d\n", msh->vtx_dim.x, msh->vtx_dim.y, msh->vtx_dim.z);
+    fprintf(file1,"DIMENSIONS %d %d %d\n", prm->vtx_dim.x, prm->vtx_dim.y, prm->vtx_dim.z);
     
     /*
      ===================
@@ -59,15 +59,15 @@ void wrt_vtk(struct msh_obj *msh, struct ocl_obj *ocl, int k)
      ===================
      */
     
-    fprintf(file1,"\nPOINTS %d float\n", msh->nv_tot);
+    fprintf(file1,"\nPOINTS %d float\n", prm->nv_tot);
 
-    for(int i=0; i<msh->nv_tot; i++)
+    for(int i=0; i<prm->nv_tot; i++)
     {
         fprintf(file1, "%e %e %e\n", ocl->vtx_xx.hst[i].x, ocl->vtx_xx.hst[i].y, ocl->vtx_xx.hst[i].z);
     }
 
     //point data flag
-    fprintf(file1,"\nPOINT_DATA %d\n", msh->nv_tot);
+    fprintf(file1,"\nPOINT_DATA %d\n", prm->nv_tot);
     
     /*
      ===================
@@ -77,7 +77,7 @@ void wrt_vtk(struct msh_obj *msh, struct ocl_obj *ocl, int k)
     
     fprintf(file1,"VECTORS Uu float\n");
 
-    for(int i=0; i<msh->nv_tot; i++)
+    for(int i=0; i<prm->nv_tot; i++)
     {
         fprintf(file1, "%e %e %e\n", ocl->vtx_uu.hst[i].x, ocl->vtx_uu.hst[i].y, ocl->vtx_uu.hst[i].z);
     }
@@ -90,7 +90,7 @@ void wrt_vtk(struct msh_obj *msh, struct ocl_obj *ocl, int k)
 
     fprintf(file1,"VECTORS Fu float\n");
 
-    for(int i=0; i<msh->nv_tot; i++)
+    for(int i=0; i<prm->nv_tot; i++)
     {
         fprintf(file1, "%e %e %e\n", ocl->vtx_ff.hst[i].x, ocl->vtx_ff.hst[i].y, ocl->vtx_ff.hst[i].z);
     }
@@ -104,7 +104,7 @@ void wrt_vtk(struct msh_obj *msh, struct ocl_obj *ocl, int k)
     fprintf(file1,"SCALARS Uc float 1\n");
     fprintf(file1,"LOOKUP_TABLE default\n");
     
-    for(int i=0; i<msh->nv_tot; i++)
+    for(int i=0; i<prm->nv_tot; i++)
     {
         fprintf(file1, "%e\n", ocl->vtx_uu.hst[i].w);
     }
@@ -118,7 +118,7 @@ void wrt_vtk(struct msh_obj *msh, struct ocl_obj *ocl, int k)
     fprintf(file1,"SCALARS Fc float 1\n");
     fprintf(file1,"LOOKUP_TABLE default\n");
     
-    for(int i=0; i<msh->nv_tot; i++)
+    for(int i=0; i<prm->nv_tot; i++)
     {
         fprintf(file1, "%e\n", ocl->vtx_ff.hst[i].w);
     }

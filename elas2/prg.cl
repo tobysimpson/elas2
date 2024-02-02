@@ -43,7 +43,7 @@ float8  sym_sumT(float16 A);
 float   sym_tip(float8 A, float8 B);
 
 float8  mec_E(float16 du);
-float8  mec_S(float8 E, float8 mat_prm);
+float8  mec_S(float8 E, float8 mat);
 
 /*
  ===================================
@@ -374,14 +374,13 @@ float8 mec_E(float16 du)
 
 
 //stress pk2 = lam*tr(e)*I + 2*mu*e
-float8 mec_S(float8 E, float8 mat_prm)
+float8 mec_S(float8 E, float8 mat)
 {
-    float8 S = 2e0f*mat_prm.s1*E;
-    S.s035 += mat_prm.s0*sym_tr(E);
+    float8 S = 2e0f*mat.s1*E;
+    S.s035 += mat.s0*sym_tr(E);
     
     return S;
 }
-
 
 
 /*
@@ -437,7 +436,8 @@ kernel void vtx_init(const  float4  dx,
                 int idx2 = 4*dim1 + dim2;
                 ii[idx2] = vtx2_bnd1*(4*vtx1_idx1 + dim1);
                 jj[idx2] = vtx2_bnd1*(4*vtx2_idx1 + dim2);
-                vv[idx2] = vtx2_bnd1*(vtx1_idx1==vtx2_idx1)*(dim1==3)*(dim2==3); //set Kc=I
+//                vv[idx2] = vtx2_bnd1*(vtx1_idx1==vtx2_idx1)*(dim1==3)*(dim2==3); //set Kc=I
+                vv[idx2] = vtx2_bnd1*(vtx1_idx1==vtx2_idx1)*(dim1==dim2); //set to I
                 
             } //dim2
             
@@ -451,7 +451,7 @@ kernel void vtx_init(const  float4  dx,
 
 //assemble
 kernel void vtx_assm(const  float4   dx,
-                     const  float8   mat_prm,
+                     const  float8   mat,
                      global float4   *U,
                      global float4   *F,
                      global float16  *K_vv)
@@ -515,7 +515,7 @@ kernel void vtx_assm(const  float4   dx,
                 bas_grad(qp, bas_gg, dx);
                 
                 //gravity
-                float3 g = (float3){0e+0f, 0e+0f, -mat_prm.s2*mat_prm.s3};
+                float3 g = (float3){0e+0f, 0e+0f, -mat.s2*mat.s3};
                 
                 //write rhs
                 F[vtx1_idx1].xyz += g*bas_ee[vtx1_idx2]*qw;
@@ -550,7 +550,7 @@ kernel void vtx_assm(const  float4   dx,
                             float8 E2 = mec_E(du2);
                             
                             //stress
-                            float8 S2 = mec_S(E2, mat_prm);
+                            float8 S2 = mec_S(E2, mat);
                             
                             //write uu
                             int idx2 = 4*dim1 + dim2;

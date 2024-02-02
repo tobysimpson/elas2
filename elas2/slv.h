@@ -23,23 +23,22 @@ void dsp_vec(DenseVector_Float v)
 
 
 //solve
-int slv_mtx(struct msh_obj *msh, struct ocl_obj *ocl)
+int slv_mtx(struct prm_obj *prm, struct ocl_obj *ocl)
 {
     //unsymmetric
     SparseAttributes_t atts;
     atts.kind = SparseOrdinary;
-    atts.transpose  = false;
+    atts.transpose = false;
     
-//    //symmetric (ignores upper) - no
+//    //symmetric
 //    SparseAttributes_t atts;
-//    atts.kind = SparseSymmetric;
 //    atts.triangle = SparseLowerTriangle;
+//    atts.kind = SparseSymmetric;
     
-
     //size of input array
-    long blk_num = 27*16*msh->nv_tot;
-    int num_rows = 4*msh->nv_tot;
-    int num_cols = 4*msh->nv_tot;
+    long blk_num = 27*16*prm->nv_tot;
+    int num_rows = 4*prm->nv_tot;
+    int num_cols = 4*prm->nv_tot;
     uint8_t blk_sz = 1;
 
     //create
@@ -49,11 +48,15 @@ int slv_mtx(struct msh_obj *msh, struct ocl_obj *ocl)
     DenseVector_Float u;
     DenseVector_Float f;
     
-    u.count = 4*msh->nv_tot;
-    f.count = 4*msh->nv_tot;
+    u.count = 4*prm->nv_tot;
+    f.count = 4*prm->nv_tot;
     
     u.data = (float*)ocl->vtx_uu.hst;
     f.data = (float*)ocl->vtx_ff.hst;
+    
+    
+    
+    
 
     /*
      ========================
@@ -61,22 +64,21 @@ int slv_mtx(struct msh_obj *msh, struct ocl_obj *ocl)
      ========================
      */
     
-//    //GMRES
-//    SparseGMRESOptions options;
-//    options.maxIterations =  4*msh->nv_tot;
-//    options.nvec = 100;
-//    options.atol = 1e-3f;
-//    options.rtol = 1e-3f;
-//    options.variant = SparseVariantGMRES;
-//    SparseSolve(SparseGMRES(options), A, f, u);
-    
-    //CG
-    SparseCGOptions options;
-    options.maxIterations = 4*msh->nv_tot;
+    //GMRES
+    SparseGMRESOptions options;
+    options.maxIterations =  4*prm->nv_tot;
+    options.nvec = 100;
     options.atol = 1e-3f;
     options.rtol = 1e-3f;
-    SparseSolve(SparseConjugateGradient(options), A, f, u);
-
+    options.variant = SparseVariantGMRES;
+    SparseSolve(SparseGMRES(options), A, f, u);
+    
+    //CG
+//    SparseCGOptions options;
+//    options.maxIterations = 4*prm->nv_tot;
+//    options.atol = 1e-3f;
+//    options.rtol = 1e-3f;
+//    SparseSolve(SparseConjugateGradient(options), A, f, u);
 
 //    //LSMR
 //    SparseSolve(SparseLSMR(), A, f, u); //minres - symmetric

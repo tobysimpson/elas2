@@ -38,7 +38,6 @@ struct buf_coo
     struct buf_int   ii;
     struct buf_int   jj;
     struct buf_float vv;
-    
 };
 
 
@@ -75,7 +74,7 @@ struct ocl_obj
 
 
 //init
-void ocl_init(struct msh_obj *msh, struct ocl_obj *ocl)
+void ocl_init(struct prm_obj *prm, struct ocl_obj *ocl)
 {
     printf("__FILE__: %s\n", __FILE__);
     
@@ -185,25 +184,24 @@ void ocl_init(struct msh_obj *msh, struct ocl_obj *ocl)
     //CL_MEM_READ_WRITE/CL_MEM_HOST_READ_ONLY/CL_MEM_HOST_NO_ACCESS / CL_MEM_ALLOC_HOST_PTR
     
     //buf
-    ocl->vtx_xx.dev = clCreateBuffer(ocl->context, CL_MEM_HOST_READ_ONLY, msh->nv_tot*sizeof(cl_float4), NULL, &ocl->err);
-    ocl->vtx_uu.dev = clCreateBuffer(ocl->context, CL_MEM_HOST_READ_ONLY, msh->nv_tot*sizeof(cl_float4), NULL, &ocl->err);
-    ocl->vtx_vv.dev = clCreateBuffer(ocl->context, CL_MEM_HOST_READ_ONLY, msh->nv_tot*sizeof(cl_float4), NULL, &ocl->err);
-    ocl->vtx_aa.dev = clCreateBuffer(ocl->context, CL_MEM_HOST_READ_ONLY, msh->nv_tot*sizeof(cl_float4), NULL, &ocl->err);
-    ocl->vtx_ff.dev = clCreateBuffer(ocl->context, CL_MEM_HOST_READ_ONLY, msh->nv_tot*sizeof(cl_float4), NULL, &ocl->err);
+    ocl->vtx_xx.dev = clCreateBuffer(ocl->context, CL_MEM_HOST_READ_ONLY, prm->nv_tot*sizeof(cl_float4), NULL, &ocl->err);
+    ocl->vtx_uu.dev = clCreateBuffer(ocl->context, CL_MEM_HOST_READ_ONLY, prm->nv_tot*sizeof(cl_float4), NULL, &ocl->err);
+    ocl->vtx_vv.dev = clCreateBuffer(ocl->context, CL_MEM_HOST_READ_ONLY, prm->nv_tot*sizeof(cl_float4), NULL, &ocl->err);
+    ocl->vtx_aa.dev = clCreateBuffer(ocl->context, CL_MEM_HOST_READ_ONLY, prm->nv_tot*sizeof(cl_float4), NULL, &ocl->err);
+    ocl->vtx_ff.dev = clCreateBuffer(ocl->context, CL_MEM_HOST_READ_ONLY, prm->nv_tot*sizeof(cl_float4), NULL, &ocl->err);
     
     //coo
-    ocl->mtx_A.ii.dev = clCreateBuffer(ocl->context, CL_MEM_HOST_READ_ONLY, 27*msh->nv_tot*sizeof(cl_int16),   NULL, &ocl->err);
-    ocl->mtx_A.jj.dev = clCreateBuffer(ocl->context, CL_MEM_HOST_READ_ONLY, 27*msh->nv_tot*sizeof(cl_int16),   NULL, &ocl->err);
-    ocl->mtx_A.vv.dev = clCreateBuffer(ocl->context, CL_MEM_HOST_READ_ONLY, 27*msh->nv_tot*sizeof(cl_float16), NULL, &ocl->err);
+    ocl->mtx_A.ii.dev = clCreateBuffer(ocl->context, CL_MEM_HOST_READ_ONLY, 27*prm->nv_tot*sizeof(cl_int16),   NULL, &ocl->err);
+    ocl->mtx_A.jj.dev = clCreateBuffer(ocl->context, CL_MEM_HOST_READ_ONLY, 27*prm->nv_tot*sizeof(cl_int16),   NULL, &ocl->err);
+    ocl->mtx_A.vv.dev = clCreateBuffer(ocl->context, CL_MEM_HOST_READ_ONLY, 27*prm->nv_tot*sizeof(cl_float16), NULL, &ocl->err);
 
-    
     /*
      =============================
      arguments
      =============================
      */
 
-    ocl->err = clSetKernelArg(ocl->vtx_init,  0, sizeof(cl_float4), (void*)&msh->dx);
+    ocl->err = clSetKernelArg(ocl->vtx_init,  0, sizeof(cl_float4), (void*)&prm->dx);
     ocl->err = clSetKernelArg(ocl->vtx_init,  1, sizeof(cl_mem),    (void*)&ocl->vtx_xx.dev);
     ocl->err = clSetKernelArg(ocl->vtx_init,  2, sizeof(cl_mem),    (void*)&ocl->vtx_uu.dev);
     ocl->err = clSetKernelArg(ocl->vtx_init,  3, sizeof(cl_mem),    (void*)&ocl->vtx_ff.dev);
@@ -211,8 +209,8 @@ void ocl_init(struct msh_obj *msh, struct ocl_obj *ocl)
     ocl->err = clSetKernelArg(ocl->vtx_init,  5, sizeof(cl_mem),    (void*)&ocl->mtx_A.jj.dev);
     ocl->err = clSetKernelArg(ocl->vtx_init,  6, sizeof(cl_mem),    (void*)&ocl->mtx_A.vv.dev);
 
-    ocl->err = clSetKernelArg(ocl->vtx_assm,  0, sizeof(cl_float3), (void*)&msh->dx);
-    ocl->err = clSetKernelArg(ocl->vtx_assm,  1, sizeof(cl_float8), (void*)&msh->mat_prm);
+    ocl->err = clSetKernelArg(ocl->vtx_assm,  0, sizeof(cl_float3), (void*)&prm->dx);
+    ocl->err = clSetKernelArg(ocl->vtx_assm,  1, sizeof(cl_float8), (void*)&prm->mat);
     ocl->err = clSetKernelArg(ocl->vtx_assm,  2, sizeof(cl_mem),    (void*)&ocl->vtx_uu.dev);
     ocl->err = clSetKernelArg(ocl->vtx_assm,  3, sizeof(cl_mem),    (void*)&ocl->vtx_ff.dev);
     ocl->err = clSetKernelArg(ocl->vtx_assm,  4, sizeof(cl_mem),    (void*)&ocl->mtx_A.vv.dev);
@@ -226,7 +224,7 @@ void ocl_init(struct msh_obj *msh, struct ocl_obj *ocl)
 
 
 //final
-void ocl_final(struct msh_obj *msh, struct ocl_obj *ocl)
+void ocl_final(struct prm_obj *msh, struct ocl_obj *ocl)
 {
     ocl->err = clFlush(ocl->command_queue);
     ocl->err = clFinish(ocl->command_queue);
@@ -247,6 +245,7 @@ void ocl_final(struct msh_obj *msh, struct ocl_obj *ocl)
     ocl->err = clReleaseMemObject(ocl->mtx_A.ii.dev);
     ocl->err = clReleaseMemObject(ocl->mtx_A.jj.dev);
     ocl->err = clReleaseMemObject(ocl->mtx_A.vv.dev);
+    
     
     ocl->err = clReleaseProgram(ocl->program);
     ocl->err = clReleaseCommandQueue(ocl->command_queue);
