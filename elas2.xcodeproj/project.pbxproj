@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		DAA1CA712B6B9A1E0067933F /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = DAA1CA6E2B6B9A1D0067933F /* main.c */; };
-		DAA1CA722B6B9A1E0067933F /* prg.cl in Sources */ = {isa = PBXBuildFile; fileRef = DAA1CA702B6B9A1E0067933F /* prg.cl */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -130,7 +129,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DAA1CA722B6B9A1E0067933F /* prg.cl in Sources */,
 				DAA1CA712B6B9A1E0067933F /* main.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

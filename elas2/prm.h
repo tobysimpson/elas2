@@ -30,7 +30,7 @@ struct prm_obj
 void prm_init(struct prm_obj *prm)
 {
     //dim
-    prm->ele_dim.x = 1;
+    prm->ele_dim.x = 2;
     prm->ele_dim.y = prm->ele_dim.x;
     prm->ele_dim.z = prm->ele_dim.x;
     
@@ -40,19 +40,19 @@ void prm_init(struct prm_obj *prm)
     printf("vtx_dim %d %d %d\n", prm->vtx_dim.x, prm->vtx_dim.y, prm->vtx_dim.z);
     
     //x1,dx, dt
-    prm->x0 = (cl_float3){0e0f, 0e0f, 0e0f};
-    prm->x1 = (cl_float3){1e0f, 1e0f, 1e0f};
+    prm->x0 = (cl_float3){0e+0f, 0e+0f, 0e+0f};
+    prm->x1 = (cl_float3){1e+0f, 1e+0f, 1e+0f};
     
     prm->dx.x = (prm->x1.x - prm->x0.x)/(float)prm->ele_dim.x;
-    prm->dx.y = (prm->x1.x - prm->x0.x)/(float)prm->ele_dim.y;
-    prm->dx.z = (prm->x1.x - prm->x0.x)/(float)prm->ele_dim.z;
-    prm->dx.w = 1e-1f;
+    prm->dx.y = (prm->x1.y - prm->x0.y)/(float)prm->ele_dim.y;
+    prm->dx.z = (prm->x1.z - prm->x0.z)/(float)prm->ele_dim.z;
+    prm->dx.w = 1e-1f;                                             //dt
     
     printf("dx %+f %+f %+f %+f\n", prm->dx.x, prm->dx.y, prm->dx.z, prm->dx.w);
     
     //material params
-    prm->mat.s0 = 1e-0f;     //lamé      lambda
-    prm->mat.s1 = 1e-0f;     //lamé      mu
+    prm->mat.s0 = 1e-1f;     //lamé      lambda
+    prm->mat.s1 = 1e-1f;     //lamé      mu
     prm->mat.s2 = 1e+0f;     //density   rho     mg/mm^3
     prm->mat.s3 = 1e-2f;     //gravity   g       mm/ms
     prm->mat.s4 = 0e+0f;

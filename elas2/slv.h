@@ -54,9 +54,32 @@ int slv_mtx(struct prm_obj *prm, struct ocl_obj *ocl)
     u.data = (float*)ocl->vtx_uu.hst;
     f.data = (float*)ocl->vtx_ff.hst;
     
+    /*
+     ========================
+     print
+     ========================
+     */
     
-    
-    
+//    int col_idx = 0;
+//    
+//    int sum = 0;
+//
+//    for(int i=0; i<A.structure.columnStarts[A.structure.columnCount]; i++)
+//    {
+//        if(i == A.structure.columnStarts[col_idx+1])
+//        {
+//            col_idx += 1;
+//        }
+//        
+//        if(A.structure.rowIndices[i]==col_idx)
+//        {
+//            printf("(%3d,%3d) %f\n",A.structure.rowIndices[i],col_idx,A.data[i]);
+//            
+//            sum += 1;
+//        }
+//    }
+//    
+//    printf("%3d\n",sum);
 
     /*
      ========================
@@ -64,27 +87,27 @@ int slv_mtx(struct prm_obj *prm, struct ocl_obj *ocl)
      ========================
      */
     
-    //GMRES
-    SparseGMRESOptions options;
-    options.maxIterations =  4*prm->nv_tot;
-    options.nvec = 100;
-    options.atol = 1e-3f;
-    options.rtol = 1e-3f;
-    options.variant = SparseVariantGMRES;
-    SparseSolve(SparseGMRES(options), A, f, u);
-    
-    //CG
-//    SparseCGOptions options;
-//    options.maxIterations = 4*prm->nv_tot;
+//    //GMRES
+//    SparseGMRESOptions options;
+//    options.maxIterations =  4*prm->nv_tot;
+//    options.nvec = 100;
 //    options.atol = 1e-3f;
 //    options.rtol = 1e-3f;
-//    SparseSolve(SparseConjugateGradient(options), A, f, u);
+//    options.variant = SparseVariantGMRES;
+//    SparseSolve(SparseGMRES(options), A, f, u);
+    
+    //CG
+    SparseCGOptions options;
+    options.maxIterations = 4*prm->nv_tot;
+//    options.atol = 1e-3f;
+//    options.rtol = 1e-3f;
+    SparseSolve(SparseConjugateGradient(), A, f, u);
 
 //    //LSMR
 //    SparseSolve(SparseLSMR(), A, f, u); //minres - symmetric
     
 //    //QR
-//    SparseOpaqueFactorization_Float QR = SparseFactor(SparseFactorizationQR, A);       //no
+//    SparseOpaqueFactorization_Float QR = SparseFactor(SparseFactorizationQR, A);
 //    SparseSolve(QR, f , u);
 //    SparseCleanup(QR);
     

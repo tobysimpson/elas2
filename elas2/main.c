@@ -45,9 +45,9 @@ int main(int argc, const char * argv[])
     
     //init
     ocl.err = clEnqueueNDRangeKernel(ocl.command_queue, ocl.vtx_init, 3, NULL, nv, NULL, 0, NULL, NULL);
-    ocl.err = clEnqueueNDRangeKernel(ocl.command_queue, ocl.vtx_assm, 3, NULL, nv, NULL, 0, NULL, NULL);
-    ocl.err = clEnqueueNDRangeKernel(ocl.command_queue, ocl.vtx_elim, 3, NULL, nv, NULL, 0, NULL, NULL);
-    ocl.err = clEnqueueNDRangeKernel(ocl.command_queue, ocl.vtx_bnd1, 3, NULL, nv, NULL, 0, NULL, NULL);
+//    ocl.err = clEnqueueNDRangeKernel(ocl.command_queue, ocl.vtx_assm, 3, NULL, nv, NULL, 0, NULL, NULL);
+//    ocl.err = clEnqueueNDRangeKernel(ocl.command_queue, ocl.vtx_elim, 3, NULL, nv, NULL, 0, NULL, NULL);
+//    ocl.err = clEnqueueNDRangeKernel(ocl.command_queue, ocl.vtx_bnd1, 3, NULL, nv, NULL, 0, NULL, NULL);
 
     /*
      ==============================
@@ -66,15 +66,15 @@ int main(int argc, const char * argv[])
          ==============================
          */
 
-        ocl.vtx_xx.hst = clEnqueueMapBuffer(ocl.command_queue, ocl.vtx_xx.dev, CL_TRUE, CL_MAP_READ, 0, prm.nv_tot*sizeof(cl_float4), 0, NULL, NULL, &ocl.err);
-        ocl.vtx_uu.hst = clEnqueueMapBuffer(ocl.command_queue, ocl.vtx_uu.dev, CL_TRUE, CL_MAP_READ, 0, prm.nv_tot*sizeof(cl_float4), 0, NULL, NULL, &ocl.err);
-        ocl.vtx_vv.hst = clEnqueueMapBuffer(ocl.command_queue, ocl.vtx_vv.dev, CL_TRUE, CL_MAP_READ, 0, prm.nv_tot*sizeof(cl_float4), 0, NULL, NULL, &ocl.err);
-        ocl.vtx_aa.hst = clEnqueueMapBuffer(ocl.command_queue, ocl.vtx_aa.dev, CL_TRUE, CL_MAP_READ, 0, prm.nv_tot*sizeof(cl_float4), 0, NULL, NULL, &ocl.err);
-        ocl.vtx_ff.hst = clEnqueueMapBuffer(ocl.command_queue, ocl.vtx_ff.dev, CL_TRUE, CL_MAP_READ, 0, prm.nv_tot*sizeof(cl_float4), 0, NULL, NULL, &ocl.err);
+        ocl.vtx_xx.hst   = clEnqueueMapBuffer(ocl.command_queue, ocl.vtx_xx.dev,   CL_TRUE, CL_MAP_READ, 0,    prm.nv_tot*sizeof(cl_float4),  0, NULL, NULL, &ocl.err);
+        ocl.vtx_uu.hst   = clEnqueueMapBuffer(ocl.command_queue, ocl.vtx_uu.dev,   CL_TRUE, CL_MAP_READ, 0,    prm.nv_tot*sizeof(cl_float4),  0, NULL, NULL, &ocl.err);
+        ocl.vtx_vv.hst   = clEnqueueMapBuffer(ocl.command_queue, ocl.vtx_vv.dev,   CL_TRUE, CL_MAP_READ, 0,    prm.nv_tot*sizeof(cl_float4),  0, NULL, NULL, &ocl.err);
+        ocl.vtx_aa.hst   = clEnqueueMapBuffer(ocl.command_queue, ocl.vtx_aa.dev,   CL_TRUE, CL_MAP_READ, 0,    prm.nv_tot*sizeof(cl_float4),  0, NULL, NULL, &ocl.err);
+        ocl.vtx_ff.hst   = clEnqueueMapBuffer(ocl.command_queue, ocl.vtx_ff.dev,   CL_TRUE, CL_MAP_READ, 0,    prm.nv_tot*sizeof(cl_float4),  0, NULL, NULL, &ocl.err);
         
-        ocl.mtx_A.ii.hst = clEnqueueMapBuffer(ocl.command_queue,  ocl.mtx_A.ii.dev, CL_TRUE, CL_MAP_READ, 0, 27*prm.nv_tot*sizeof(cl_int16),   0, NULL, NULL, &ocl.err);
-        ocl.mtx_A.jj.hst = clEnqueueMapBuffer(ocl.command_queue,  ocl.mtx_A.jj.dev, CL_TRUE, CL_MAP_READ, 0, 27*prm.nv_tot*sizeof(cl_int16),   0, NULL, NULL, &ocl.err);
-        ocl.mtx_A.vv.hst = clEnqueueMapBuffer(ocl.command_queue,  ocl.mtx_A.vv.dev, CL_TRUE, CL_MAP_READ, 0, 27*prm.nv_tot*sizeof(cl_float16), 0, NULL, NULL, &ocl.err);
+        ocl.mtx_A.ii.hst = clEnqueueMapBuffer(ocl.command_queue, ocl.mtx_A.ii.dev, CL_TRUE, CL_MAP_READ, 0, 27*prm.nv_tot*sizeof(cl_int16),   0, NULL, NULL, &ocl.err);
+        ocl.mtx_A.jj.hst = clEnqueueMapBuffer(ocl.command_queue, ocl.mtx_A.jj.dev, CL_TRUE, CL_MAP_READ, 0, 27*prm.nv_tot*sizeof(cl_int16),   0, NULL, NULL, &ocl.err);
+        ocl.mtx_A.vv.hst = clEnqueueMapBuffer(ocl.command_queue, ocl.mtx_A.vv.dev, CL_TRUE, CL_MAP_READ, 0, 27*prm.nv_tot*sizeof(cl_float16), 0, NULL, NULL, &ocl.err);
         
         /*
          ==============================
@@ -82,10 +82,6 @@ int main(int argc, const char * argv[])
          ==============================
          */
         
-        //reset soln
-//        memset(ocl.hst.U, 0, msh.nv_tot*sizeof(cl_float4));
-        
-        //solve
         slv_mtx(&prm, &ocl);
         
         /*
