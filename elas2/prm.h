@@ -30,7 +30,7 @@ struct prm_obj
 void prm_init(struct prm_obj *prm)
 {
     //dim
-    prm->ele_dim.x = 4;
+    prm->ele_dim.x = 8;
     prm->ele_dim.y = prm->ele_dim.x;
     prm->ele_dim.z = prm->ele_dim.x;
     
@@ -41,7 +41,7 @@ void prm_init(struct prm_obj *prm)
     
     //x1,dx, dt
     prm->x0 = (cl_float3){0e+0f, 0e+0f, 0e+0f};
-    prm->x1 = (cl_float3){1e+1f, 1e+1f, 1e+1f};
+    prm->x1 = (cl_float3){1e+0f, 1e+0f, 1e+0f};
     
     prm->dx.x = (prm->x1.x - prm->x0.x)/(float)prm->ele_dim.x;
     prm->dx.y = (prm->x1.y - prm->x0.y)/(float)prm->ele_dim.y;

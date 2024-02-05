@@ -71,24 +71,32 @@ void wrt_vtk(struct prm_obj *prm, struct ocl_obj *ocl, int k)
     
     /*
      ===================
-     uu
+     vectors
      ===================
      */
     
-    fprintf(file1,"VECTORS Uu float\n");
+    fprintf(file1,"VECTORS uu_xyz float\n");
 
     for(int i=0; i<prm->nv_tot; i++)
     {
         fprintf(file1, "%e %e %e\n", ocl->vtx_uu.hst[i].x, ocl->vtx_uu.hst[i].y, ocl->vtx_uu.hst[i].z);
     }
     
-    /*
-     ===================
-     fu
-     ===================
-     */
+    fprintf(file1,"VECTORS vv_xyz float\n");
 
-    fprintf(file1,"VECTORS Fu float\n");
+    for(int i=0; i<prm->nv_tot; i++)
+    {
+        fprintf(file1, "%e %e %e\n", ocl->vtx_vv.hst[i].x, ocl->vtx_vv.hst[i].y, ocl->vtx_vv.hst[i].z);
+    }
+    
+    fprintf(file1,"VECTORS aa_xyz float\n");
+
+    for(int i=0; i<prm->nv_tot; i++)
+    {
+        fprintf(file1, "%e %e %e\n", ocl->vtx_aa.hst[i].x, ocl->vtx_aa.hst[i].y, ocl->vtx_aa.hst[i].z);
+    }
+    
+    fprintf(file1,"VECTORS ff_xyz float\n");
 
     for(int i=0; i<prm->nv_tot; i++)
     {
@@ -97,31 +105,42 @@ void wrt_vtk(struct prm_obj *prm, struct ocl_obj *ocl, int k)
     
     /*
      ===================
-     uc
+     scalars
      ===================
      */
     
-    fprintf(file1,"SCALARS Uc float 1\n");
+    fprintf(file1,"SCALARS uu_w float 1\n");
     fprintf(file1,"LOOKUP_TABLE default\n");
     
     for(int i=0; i<prm->nv_tot; i++)
     {
         fprintf(file1, "%e\n", ocl->vtx_uu.hst[i].w);
     }
+    
+    fprintf(file1,"SCALARS vv_w float 1\n");
+    fprintf(file1,"LOOKUP_TABLE default\n");
+    
+    for(int i=0; i<prm->nv_tot; i++)
+    {
+        fprintf(file1, "%e\n", ocl->vtx_vv.hst[i].w);
+    }
 
-    /*
-     ===================
-     fc
-     ===================
-     */
-
-    fprintf(file1,"SCALARS Fc float 1\n");
+    fprintf(file1,"SCALARS aa_w float 1\n");
+    fprintf(file1,"LOOKUP_TABLE default\n");
+    
+    for(int i=0; i<prm->nv_tot; i++)
+    {
+        fprintf(file1, "%e\n", ocl->vtx_aa.hst[i].w);
+    }
+    
+    fprintf(file1,"SCALARS ff_w float 1\n");
     fprintf(file1,"LOOKUP_TABLE default\n");
     
     for(int i=0; i<prm->nv_tot; i++)
     {
         fprintf(file1, "%e\n", ocl->vtx_ff.hst[i].w);
     }
+    
     
     //clean up
     fclose(file1);

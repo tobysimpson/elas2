@@ -18,6 +18,9 @@ int     fn_idx3(int3 pos);
 int     fn_bnd1(int3 pos, int3 dim);
 int     fn_bnd2(int3 pos, int3 dim);
 
+float   fn_f1(float4 p);
+float   fn_u1(float4 p);
+
 void    mem_gr3(global float4 *buf, float4 uu3[27], int3 pos, int3 dim);
 void    mem_lr2(float4 uu3[27], float4 uu2[8], int3 pos);
 
@@ -57,6 +60,25 @@ constant int3 off2[8] = {{0,0,0},{1,0,0},{0,1,0},{1,1,0},{0,0,1},{1,0,1},{0,1,1}
 constant int3 off3[27] = {{0,0,0},{1,0,0},{2,0,0},{0,1,0},{1,1,0},{2,1,0},{0,2,0},{1,2,0},{2,2,0},
                           {0,0,1},{1,0,1},{2,0,1},{0,1,1},{1,1,1},{2,1,1},{0,2,1},{1,2,1},{2,2,1},
                           {0,0,2},{1,0,2},{2,0,2},{0,1,2},{1,1,2},{2,1,2},{0,2,2},{1,2,2},{2,2,2}};
+
+
+/*
+ ===================================
+ analytic
+ ===================================
+ */
+
+//rhs
+float fn_f1(float4 p)
+{
+    return 2e0f*(p.x*p.y*(p.x - 1e0f)*(p.y - 1e0f) + p.x*p.z*(p.x - 1e0f)*(p.z - 1e0f) + p.y*p.z*(p.y - 1e0f)*(p.z - 1e0f));
+}
+
+//soln
+float fn_u1(float4 p)
+{
+    return p.x*(1e0f - p.x)*p.y*(1e0f - p.y)*p.z*(1e0f - p.z);
+}
 
 /*
  ===================================
@@ -264,7 +286,6 @@ float16 mtx_mm(float16 A, float16 B)
     return C;
 }
 
-
 //outer prod
 float16 mtx_uvT(float3 u, float3 v)
 {
@@ -296,13 +317,11 @@ float sym_tr(float8 A)
     return dot(A.s035,(float3){1e0f,1e0f,1e0f});
 }
 
-
 //sym determinant
 float sym_det(float8 A)
 {
     return dot((float3){A.s0,A.s1,A.s2}, cross((float3){A.s1, A.s3, A.s4}, (float3){A.s2, A.s4, A.s5}));
 }
-
 
 //outer product vv^T
 float8 sym_vvT(float3 v)
@@ -316,7 +335,6 @@ float3 sym_mv(float8 A, float3 v)
     return v.x*A.s012 + v.y*A.s134 + v.z*A.s245;
 }
 
-
 //sym mtx-mtx
 float8 sym_mm(float8 A, float8 B)
 {
@@ -327,7 +345,6 @@ float8 sym_mm(float8 A, float8 B)
         A.s1*B.s2 + A.s3*B.s4 + A.s4*B.s5,
         A.s2*B.s2 + A.s4*B.s4 + A.s5*B.s5, 0e0f, 0e0f};
 }
-
 
 //mult V, diag D
 float8  sym_mdmT(float16 V, float3 D)
@@ -340,7 +357,6 @@ float8  sym_mdmT(float16 V, float3 D)
                     D.x*V.s2*V.s2 + D.y*V.s6*V.s6 + D.z*V.sa*V.sa, 0e0f, 0e0f};
 }
 
-
 //sum S = A+A^T
 float8 sym_sumT(float16 A)
 {
@@ -351,7 +367,6 @@ float8 sym_sumT(float16 A)
 
     return S;
 }
-
 
 //sym tensor inner prod
 float sym_tip(float8 A, float8 B)
@@ -392,24 +407,29 @@ float8 mec_S(float8 E, float8 mat)
 //init
 kernel void vtx_init(const  float4  dx,
                      global float4  *vtx_xx,
-                     global float4  *U,
-                     global float4  *F,
-                     global int16   *K_ii,
-                     global int16   *K_jj,
-                     global float16 *K_vv)
+                     global float4  *vtx_uu,
+                     global float4  *vtx_vv,
+                     global float4  *vtx_aa,
+                     global float4  *vtx_ff,
+                     global int16   *A_ii,
+                     global int16   *A_jj,
+                     global float16 *A_vv)
 {
     int3 vtx_dim = {get_global_size(0), get_global_size(1), get_global_size(2)};
     int3 vtx1_pos1 = {get_global_id(0)  , get_global_id(1),   get_global_id(2)};
     int  vtx1_idx1 = fn_idx1(vtx1_pos1, vtx_dim);
     
     //coord
-    vtx_xx[vtx1_idx1].xyz = dx.xyz*convert_float3(vtx1_pos1);
-    
+    float4 x = dx*convert_float4((int4){vtx1_pos1,0});
+
 //    printf("init %3d %v3d %v3f\n", vtx1_idx1, vtx1_pos1, vtx_xx[vtx1_idx1].xyz);
     
     //vec
-    U[vtx1_idx1] = 0e0f;
-    F[vtx1_idx1] = 0e0f; //vtx1_idx1;
+    vtx_xx[vtx1_idx1] = x;
+    vtx_uu[vtx1_idx1] = 0e0f;
+    vtx_vv[vtx1_idx1] = (float4){0e0f, 0e0f, 0e0f, fn_u1(x)};   //ana
+    vtx_aa[vtx1_idx1] = 0e0f;                                   //err
+    vtx_ff[vtx1_idx1] = 0e0f;                                   //rhs
     
     //vtx2
     for(int vtx2_idx3=0; vtx2_idx3<27; vtx2_idx3++)
@@ -422,9 +442,9 @@ kernel void vtx_init(const  float4  dx,
         int idx1 = 27*vtx1_idx1 + vtx2_idx3;
         
         //block pointers
-        global int*   ii = (global int*)&K_ii[idx1];
-        global int*   jj = (global int*)&K_jj[idx1];
-        global float* vv = (global float*)&K_vv[idx1];
+        global int*   ii = (global int*)&A_ii[idx1];
+        global int*   jj = (global int*)&A_jj[idx1];
+        global float* vv = (global float*)&A_vv[idx1];
         
         //dim1
         for(int dim1=0; dim1<4; dim1++)
@@ -436,9 +456,9 @@ kernel void vtx_init(const  float4  dx,
                 int idx2 = 4*dim1 + dim2;
                 ii[idx2] = vtx2_bnd1*(4*vtx1_idx1 + dim1);
                 jj[idx2] = vtx2_bnd1*(4*vtx2_idx1 + dim2);
-//                vv[idx2] = vtx2_bnd1*(vtx1_idx1==vtx2_idx1)*(dim1==3)*(dim2==3); //set Kc=I
-                vv[idx2] = vtx2_bnd1*(vtx1_idx1==vtx2_idx1)*(dim1==dim2); //set to I
-                
+//                vv[idx2] = vtx2_bnd1*(vtx1_idx1==vtx2_idx1)*(dim1==3)*(dim2==3); //set Ac=I
+                vv[idx2] = vtx2_bnd1*(vtx1_idx1==vtx2_idx1)*(dim1==dim2)*(dim1<3); //set Au=I
+
             } //dim2
             
         } //dim1
@@ -452,9 +472,12 @@ kernel void vtx_init(const  float4  dx,
 //assemble
 kernel void vtx_assm(const  float4   dx,
                      const  float8   mat,
-                     global float4   *U,
-                     global float4   *F,
-                     global float16  *K_vv)
+                     global float4   *vtx_xx,
+                     global float4   *vtx_uu,
+                     global float4   *vtx_vv,
+                     global float4   *vtx_aa,
+                     global float4   *vtx_ff,
+                     global float16  *A_vv)
 {
     int3 vtx_dim = {get_global_size(0), get_global_size(1), get_global_size(2)};
     int3 ele_dim = vtx_dim - 1;
@@ -467,11 +490,14 @@ kernel void vtx_assm(const  float4   dx,
 //    printf("vtx1_pos1 %v3d\n", vtx1_pos1);
     
     //read 3x3x3
+    float4  xx3[27];
 //    float4  uu3[27];
-//    mem_gr3(U, uu3, vtx1_pos1, vtx_dim);
+    mem_gr3(vtx_xx, xx3, vtx1_pos1, vtx_dim);
+//    mem_gr3(vtx_uu, uu3, vtx1_pos1, vtx_dim);
     
     //ref - avoids -ve int bug
     int  vtx1_idx2 = 8;
+    
     
     //ele1
     for(uint ele1_idx2=0; ele1_idx2<8; ele1_idx2++)
@@ -486,8 +512,10 @@ kernel void vtx_assm(const  float4   dx,
         //in-bounds
         if(ele1_bnd1)
         {
-//            //read 2x2x2
+            //read 2x2x2
+            float4 xx2[8];
 //            float4 uu2[8];
+            mem_lr2(xx3, xx2, ele1_pos2);
 //            mem_lr2(uu3, uu2, ele1_pos2);
 
             //qpt1 (change limit with scheme 1,8,27)
@@ -514,11 +542,15 @@ kernel void vtx_assm(const  float4   dx,
                 bas_eval(qp, bas_ee);
                 bas_grad(qp, bas_gg, dx);
                 
-                //gravity
-                float3 g = (float3){0e+0f, 0e+0f, -mat.s2*mat.s3};
+                //interp
+                float4 x = bas_itpe(xx2, bas_ee);
                 
-                //write rhs
-                F[vtx1_idx1].xyz += g*bas_ee[vtx1_idx2]*qw;
+                //gravity
+//                float3 g = (float3){0e+0f, 0e+0f, -mat.s2*mat.s3};
+                
+                //rhs
+//                vtx_ff[vtx1_idx1].xyz += g*bas_ee[vtx1_idx2]*qw;
+                vtx_ff[vtx1_idx1].w += fn_f1(x)*bas_ee[vtx1_idx2]*qw;
                 
                 //vtx2
                 for(int vtx2_idx2=0; vtx2_idx2<8; vtx2_idx2++)
@@ -529,36 +561,39 @@ kernel void vtx_assm(const  float4   dx,
                     
                     //block ptr
                     int idx1 = 27*vtx1_idx1 + vtx2_idx3;
-                    global float* vv = (global float*)&K_vv[idx1];
+                    global float* vv = (global float*)&A_vv[idx1];
                     
-                    //dim1
-                    for(int dim1=0; dim1<3; dim1++)
-                    {
-                        //tensor basis
-                        float16 du1 = bas_tens(dim1, bas_gg[vtx1_idx2]);
-                        
-                        //strain
-                        float8 E1 = mec_E(du1);
-                          
-                        //dim2
-                        for(int dim2=0; dim2<3; dim2++)
-                        {
-                            //tensor basis
-                            float16 du2 = bas_tens(dim2, bas_gg[vtx2_idx2]);
-                            
-                            //strain
-                            float8 E2 = mec_E(du2);
-                            
-                            //stress
-                            float8 S2 = mec_S(E2, mat);
-                            
-                            //write uu
-                            int idx2 = 4*dim1 + dim2;
-                            vv[idx2] += sym_tip(S2, E1)*qw;
-
-                        } //dim2
-                        
-                    } //dim1
+                    //poisson
+                    vv[15] += dot(bas_gg[vtx2_idx2], bas_gg[vtx1_idx2])*qw;
+                    
+//                    //dim1
+//                    for(int dim1=0; dim1<3; dim1++)
+//                    {
+//                        //tensor basis
+//                        float16 du1 = bas_tens(dim1, bas_gg[vtx1_idx2]);
+//                        
+//                        //strain
+//                        float8 E1 = mec_E(du1);
+//                          
+//                        //dim2
+//                        for(int dim2=0; dim2<3; dim2++)
+//                        {
+//                            //tensor basis
+//                            float16 du2 = bas_tens(dim2, bas_gg[vtx2_idx2]);
+//                            
+//                            //strain
+//                            float8 E2 = mec_E(du2);
+//                            
+//                            //stress
+//                            float8 S2 = mec_S(E2, mat);
+//                            
+//                            //write uu
+//                            int idx2 = 4*dim1 + dim2;
+//                            vv[idx2] += sym_tip(S2, E1)*qw;
+//
+//                        } //dim2
+//                        
+//                    } //dim1
                     
                 } //vtx2
                 
@@ -574,23 +609,24 @@ kernel void vtx_assm(const  float4   dx,
 
 
 
-//zero dirichlet Ku->I, F->0
-kernel void vtx_bnd1(global float4  *F,
-                     global float16 *K_vv)
+//zero dirichlet Au->I, vtx_ff->0
+kernel void vtx_bnd1(global float4  *vtx_ff,
+                     global float16 *A_vv)
 {
     int3 vtx_dim = {get_global_size(0), get_global_size(1), get_global_size(2)};
     int3 vtx1_pos1  = {get_global_id(0), get_global_id(1), get_global_id(2)};
     int  vtx1_idx1 = fn_idx1(vtx1_pos1, vtx_dim);
     
     //bools
-    int b1 = (vtx1_pos1.x == 0);                    //side
+//    int b1 = (vtx1_pos1.x == 0);                    //side
+    int b1 = fn_bnd2(vtx1_pos1, vtx_dim);            //all sides
     
 
-    //K=I, F=0
+    //K=I, vtx_ff=0
     if(b1>0)
     {
-        //F=0
-        F[vtx1_idx1] = (float4){0e0f, 0e0f, 0e0f, 0e0f};
+        //vtx_ff=0
+        vtx_ff[vtx1_idx1] = (float4){0e0f, 0e0f, 0e0f, 0e0f};
         
         //vtx2
         for(int vtx2_idx3=0; vtx2_idx3<27; vtx2_idx3++)
@@ -601,13 +637,13 @@ kernel void vtx_bnd1(global float4  *F,
             
             //local pointer
             int idx1 = 27*vtx1_idx1 + vtx2_idx3;
-            global float* vv = (global float*)&K_vv[idx1];
+            global float* vv = (global float*)&A_vv[idx1];
             
             //dim1
-            for(int dim1=0; dim1<3; dim1++)
+            for(int dim1=0; dim1<4; dim1++)
             {
                 //dim2
-                for(int dim2=0; dim2<3; dim2++)
+                for(int dim2=0; dim2<4; dim2++)
                 {
                     //Ku=I
                     int idx2 = 4*dim1 + dim2;
@@ -625,11 +661,9 @@ kernel void vtx_bnd1(global float4  *F,
 }
 
 
-
-
 //eliminate cols for symmetry
-kernel void vtx_elim(global float4  *F,
-                     global float16 *K_vv)
+kernel void vtx_elim(global float4  *vtx_ff,
+                     global float16 *A_vv)
 {
     int3 vtx_dim = {get_global_size(0), get_global_size(1), get_global_size(2)};
     int3 vtx1_pos1  = {get_global_id(0), get_global_id(1), get_global_id(2)};
@@ -642,20 +676,21 @@ kernel void vtx_elim(global float4  *F,
         int3 vtx2_pos1 = vtx1_pos1 + off3[vtx2_idx3] - 1;
         
         //bc
-        int b2 = (vtx2_pos1.x==0);        //side
+//        int b2 = (vtx2_pos1.x==0);        //side
+        int b2 = fn_bnd2(vtx2_pos1, vtx_dim);            //all sides
         
         //test bc
         if(b2)
         {
             //blocks
             int idx1 = 27*vtx1_idx1 + vtx2_idx3;
-            global float* vv = (global float*)&K_vv[idx1];
+            global float* vv = (global float*)&A_vv[idx1];
             
             //dim1
-            for(int dim1=0; dim1<3; dim1++)
+            for(int dim1=0; dim1<4; dim1++)
             {
                 //dim2
-                for(int dim2=0; dim2<3; dim2++)
+                for(int dim2=0; dim2<4; dim2++)
                 {
                     //cols
                     int idx2 = 4*dim1 + dim2;
@@ -673,3 +708,16 @@ kernel void vtx_elim(global float4  *F,
 }
 
 
+//error
+kernel void vtx_err1(global float4  *vtx_uu,
+                      global float4  *vtx_vv,
+                      global float4  *vtx_aa)
+{
+    int3 vtx_dim = {get_global_size(0), get_global_size(1), get_global_size(2)};
+    int3 vtx1_pos1  = {get_global_id(0), get_global_id(1), get_global_id(2)};
+    int  vtx1_idx1 = fn_idx1(vtx1_pos1, vtx_dim);
+    
+    vtx_aa[vtx1_idx1] = vtx_uu[vtx1_idx1] - vtx_vv[vtx1_idx1];
+    
+    return;
+}

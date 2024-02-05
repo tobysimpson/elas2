@@ -94,13 +94,13 @@ int slv_mtx(struct prm_obj *prm, struct ocl_obj *ocl)
 //    options.atol = 1e-3f;
 //    options.rtol = 1e-3f;
 //    options.variant = SparseVariantGMRES;
-//    SparseSolve(SparseGMRES(options), A, f, u);
+//    SparseSolve(SparseGMRES(), A, f, u);
     
-    //CG
-    SparseCGOptions options;
-    options.maxIterations = 4*prm->nv_tot;
-//    options.atol = 1e-3f;
-//    options.rtol = 1e-3f;
+//    //CG
+//    SparseCGOptions options;
+//    options.maxIterations = 4*prm->nv_tot;
+////    options.atol = 1e-3f;
+////    options.rtol = 1e-3f;
     SparseSolve(SparseConjugateGradient(), A, f, u);
 
 //    //LSMR
