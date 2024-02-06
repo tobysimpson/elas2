@@ -46,7 +46,7 @@ int main(int argc, const char * argv[])
     //init
     ocl.err = clEnqueueNDRangeKernel(ocl.command_queue, ocl.vtx_init, 3, NULL, nv, NULL, 0, NULL, NULL);
     ocl.err = clEnqueueNDRangeKernel(ocl.command_queue, ocl.vtx_assm, 3, NULL, nv, NULL, 0, NULL, NULL);
-    ocl.err = clEnqueueNDRangeKernel(ocl.command_queue, ocl.vtx_elim, 3, NULL, nv, NULL, 0, NULL, NULL);
+//    ocl.err = clEnqueueNDRangeKernel(ocl.command_queue, ocl.vtx_elim, 3, NULL, nv, NULL, 0, NULL, NULL);
     ocl.err = clEnqueueNDRangeKernel(ocl.command_queue, ocl.vtx_bnd1, 3, NULL, nv, NULL, 0, NULL, NULL);
 
     
@@ -60,9 +60,12 @@ int main(int argc, const char * argv[])
         ocl.err = clEnqueueReadBuffer(ocl.command_queue, ocl.vtx_ff.dev, CL_TRUE, 0, prm.nv_tot*sizeof(cl_float4), ocl.vtx_ff.hst,  0, NULL, NULL);
 
         //read mtx
-        ocl.err = clEnqueueReadBuffer(ocl.command_queue, ocl.mtx_A.ii.dev, CL_TRUE, 0, 27*prm.nv_tot*sizeof(cl_int16),   ocl.mtx_A.ii.hst,  0, NULL, NULL);
-        ocl.err = clEnqueueReadBuffer(ocl.command_queue, ocl.mtx_A.jj.dev, CL_TRUE, 0, 27*prm.nv_tot*sizeof(cl_int16),   ocl.mtx_A.jj.hst,  0, NULL, NULL);
+        ocl.err = clEnqueueReadBuffer(ocl.command_queue, ocl.mtx_A.ii.dev, CL_TRUE, 0, 27*prm.nv_tot*sizeof(int),        ocl.mtx_A.ii.hst,  0, NULL, NULL);
+        ocl.err = clEnqueueReadBuffer(ocl.command_queue, ocl.mtx_A.jj.dev, CL_TRUE, 0, 27*prm.nv_tot*sizeof(int),        ocl.mtx_A.jj.hst,  0, NULL, NULL);
         ocl.err = clEnqueueReadBuffer(ocl.command_queue, ocl.mtx_A.vv.dev, CL_TRUE, 0, 27*prm.nv_tot*sizeof(cl_float16), ocl.mtx_A.vv.hst,  0, NULL, NULL);
+        
+        //write vtk
+        wrt_vtk(&prm, &ocl, t);
         
         //write raw
         wrt_raw(ocl.vtx_xx.hst, prm.nv_tot, sizeof(cl_float4), "vtx_xx");
@@ -72,9 +75,9 @@ int main(int argc, const char * argv[])
         wrt_raw(ocl.vtx_ff.hst, prm.nv_tot, sizeof(cl_float4), "vtx_ff");
         
         //write raw
-        wrt_raw(ocl.mtx_A.ii.hst, 27*prm.nv_tot, sizeof(cl_int16),   "A_ii");
-        wrt_raw(ocl.mtx_A.jj.hst, 27*prm.nv_tot, sizeof(cl_int16),   "A_jj");
-        wrt_raw(ocl.mtx_A.vv.hst, 27*prm.nv_tot, sizeof(cl_float16), "A_vv");
+        wrt_raw(ocl.mtx_A.ii.hst, 27*prm.nv_tot, sizeof(int),       "A_ii");
+        wrt_raw(ocl.mtx_A.jj.hst, 27*prm.nv_tot, sizeof(int),       "A_jj");
+        wrt_raw(ocl.mtx_A.vv.hst, 27*prm.nv_tot, sizeof(cl_float16),"A_vv");
         
         //reset
         memset(ocl.vtx_uu.hst, 0, prm.nv_tot*sizeof(cl_float4));
@@ -88,13 +91,8 @@ int main(int argc, const char * argv[])
         //calc error
         ocl.err = clEnqueueNDRangeKernel(ocl.command_queue, ocl.vtx_err1, 3, NULL, nv, NULL, 0, NULL, NULL);
         
-        //write vtk
-        wrt_vtk(&prm, &ocl, t);
     }
     
-
-    
-
     //clean
     ocl_final(&prm, &ocl);
     

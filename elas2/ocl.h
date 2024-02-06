@@ -193,8 +193,8 @@ void ocl_init(struct prm_obj *prm, struct ocl_obj *ocl)
     ocl->vtx_ff.hst = malloc(prm->nv_tot*sizeof(cl_float4));
     
     //mtx
-    ocl->mtx_A.ii.hst = malloc(27*prm->nv_tot*sizeof(cl_int16));
-    ocl->mtx_A.jj.hst = malloc(27*prm->nv_tot*sizeof(cl_int16));
+    ocl->mtx_A.ii.hst = malloc(27*prm->nv_tot*sizeof(int));
+    ocl->mtx_A.jj.hst = malloc(27*prm->nv_tot*sizeof(int));
     ocl->mtx_A.vv.hst = malloc(27*prm->nv_tot*sizeof(cl_float16));
     
     //vec
@@ -205,8 +205,8 @@ void ocl_init(struct prm_obj *prm, struct ocl_obj *ocl)
     ocl->vtx_ff.dev = clCreateBuffer(ocl->context, CL_MEM_HOST_READ_ONLY, prm->nv_tot*sizeof(cl_float4), NULL, &ocl->err);
     
     //mtx
-    ocl->mtx_A.ii.dev = clCreateBuffer(ocl->context, CL_MEM_HOST_READ_ONLY, 27*prm->nv_tot*sizeof(cl_int16),   NULL, &ocl->err);
-    ocl->mtx_A.jj.dev = clCreateBuffer(ocl->context, CL_MEM_HOST_READ_ONLY, 27*prm->nv_tot*sizeof(cl_int16),   NULL, &ocl->err);
+    ocl->mtx_A.ii.dev = clCreateBuffer(ocl->context, CL_MEM_HOST_READ_ONLY, 27*prm->nv_tot*sizeof(int),   NULL, &ocl->err);
+    ocl->mtx_A.jj.dev = clCreateBuffer(ocl->context, CL_MEM_HOST_READ_ONLY, 27*prm->nv_tot*sizeof(int),   NULL, &ocl->err);
     ocl->mtx_A.vv.dev = clCreateBuffer(ocl->context, CL_MEM_HOST_READ_ONLY, 27*prm->nv_tot*sizeof(cl_float16), NULL, &ocl->err);
 
     /*

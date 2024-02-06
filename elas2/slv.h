@@ -36,11 +36,11 @@ int slv_mtx(struct prm_obj *prm, struct ocl_obj *ocl)
 //    atts.kind = SparseSymmetric;
     
     //size of input array
-    long blk_num = 27*16*prm->nv_tot;
-    int num_rows = 4*prm->nv_tot;
-    int num_cols = 4*prm->nv_tot;
-    uint8_t blk_sz = 1;
-
+    long    blk_num  = 27*prm->nv_tot;
+    uint8_t blk_sz   = 4;
+    int     num_rows = prm->nv_tot;
+    int     num_cols = prm->nv_tot;
+    
     //create
     SparseMatrix_Float A = SparseConvertFromCoordinate(num_rows, num_cols, blk_num, blk_sz, atts, ocl->mtx_A.ii.hst, ocl->mtx_A.jj.hst, ocl->mtx_A.vv.hst);  //duplicates sum
     
@@ -54,32 +54,6 @@ int slv_mtx(struct prm_obj *prm, struct ocl_obj *ocl)
     u.data = (float*)ocl->vtx_uu.hst;
     f.data = (float*)ocl->vtx_ff.hst;
     
-    /*
-     ========================
-     print
-     ========================
-     */
-    
-//    int col_idx = 0;
-//    
-//    int sum = 0;
-//
-//    for(int i=0; i<A.structure.columnStarts[A.structure.columnCount]; i++)
-//    {
-//        if(i == A.structure.columnStarts[col_idx+1])
-//        {
-//            col_idx += 1;
-//        }
-//        
-//        if(A.structure.rowIndices[i]==col_idx)
-//        {
-//            printf("(%3d,%3d) %f\n",A.structure.rowIndices[i],col_idx,A.data[i]);
-//            
-//            sum += 1;
-//        }
-//    }
-//    
-//    printf("%3d\n",sum);
 
     /*
      ========================
@@ -94,14 +68,14 @@ int slv_mtx(struct prm_obj *prm, struct ocl_obj *ocl)
 //    options.atol = 1e-3f;
 //    options.rtol = 1e-3f;
 //    options.variant = SparseVariantGMRES;
-//    SparseSolve(SparseGMRES(), A, f, u);
+    SparseSolve(SparseGMRES(), A, f, u);
     
 //    //CG
 //    SparseCGOptions options;
 //    options.maxIterations = 4*prm->nv_tot;
 ////    options.atol = 1e-3f;
 ////    options.rtol = 1e-3f;
-    SparseSolve(SparseConjugateGradient(), A, f, u);
+//    SparseSolve(SparseConjugateGradient(), A, f, u);
 
 //    //LSMR
 //    SparseSolve(SparseLSMR(), A, f, u); //minres - symmetric

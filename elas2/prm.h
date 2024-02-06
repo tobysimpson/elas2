@@ -30,7 +30,7 @@ struct prm_obj
 void prm_init(struct prm_obj *prm)
 {
     //dim
-    prm->ele_dim.x = 8;
+    prm->ele_dim.x = 4;
     prm->ele_dim.y = prm->ele_dim.x;
     prm->ele_dim.z = prm->ele_dim.x;
     

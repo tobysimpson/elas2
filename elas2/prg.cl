@@ -8,6 +8,26 @@
 
 /*
  ===================================
+ struct
+ ===================================
+ */
+
+union flt4
+{
+    float4 vec;
+    float  arr[4];
+};
+
+
+union flt4x4
+{
+    float16 vec;
+    float   arr[4][4];
+};
+
+
+/*
+ ===================================
  prototypes
  ===================================
  */
@@ -405,15 +425,15 @@ float8 mec_S(float8 E, float8 mat)
  */
 
 //init
-kernel void vtx_init(const  float4  dx,
-                     global float4  *vtx_xx,
-                     global float4  *vtx_uu,
-                     global float4  *vtx_vv,
-                     global float4  *vtx_aa,
-                     global float4  *vtx_ff,
-                     global int16   *A_ii,
-                     global int16   *A_jj,
-                     global float16 *A_vv)
+kernel void vtx_init(const  float4          dx,
+                     global float4          *vtx_xx,
+                     global float4          *vtx_uu,
+                     global float4          *vtx_vv,
+                     global float4          *vtx_aa,
+                     global float4          *vtx_ff,
+                     global int             *A_ii,
+                     global int             *A_jj,
+                     global union flt4x4    *A_vv)
 {
     int3 vtx_dim = {get_global_size(0), get_global_size(1), get_global_size(2)};
     int3 vtx1_pos1 = {get_global_id(0)  , get_global_id(1),   get_global_id(2)};
@@ -438,13 +458,12 @@ kernel void vtx_init(const  float4  dx,
         int  vtx2_idx1 = fn_idx1(vtx2_pos1, vtx_dim);
         int  vtx2_bnd1 = fn_bnd1(vtx2_pos1, vtx_dim);
         
-        //block
+        //blocks (nv*27)
         int idx1 = 27*vtx1_idx1 + vtx2_idx3;
         
-        //block pointers
-        global int*   ii = (global int*)&A_ii[idx1];
-        global int*   jj = (global int*)&A_jj[idx1];
-        global float* vv = (global float*)&A_vv[idx1];
+        //coo
+        A_ii[idx1] = vtx2_bnd1*vtx1_idx1;
+        A_jj[idx1] = vtx2_bnd1*vtx2_idx1;
         
         //dim1
         for(int dim1=0; dim1<4; dim1++)
@@ -452,12 +471,11 @@ kernel void vtx_init(const  float4  dx,
             //dim2
             for(int dim2=0; dim2<4; dim2++)
             {
-                //uu
-                int idx2 = 4*dim1 + dim2;
-                ii[idx2] = vtx2_bnd1*(4*vtx1_idx1 + dim1);
-                jj[idx2] = vtx2_bnd1*(4*vtx2_idx1 + dim2);
-//                vv[idx2] = vtx2_bnd1*(vtx1_idx1==vtx2_idx1)*(dim1==3)*(dim2==3); //set Ac=I
-                vv[idx2] = vtx2_bnd1*(vtx1_idx1==vtx2_idx1)*(dim1==dim2)*(dim1<3); //set Au=I
+                //mtx
+//                A_vv[idx1].arr[dim1][dim2] = vtx2_bnd1*(vtx1_idx1==vtx2_idx1)*(dim1==dim2);           //A=I
+                A_vv[idx1].arr[dim1][dim2] = vtx2_bnd1*(vtx1_idx1==vtx2_idx1)*(dim1==dim2)*(dim1<3);  //Au=I
+//                A_vv[idx1].arr[dim1][dim2] = vtx2_bnd1*(vtx1_idx1==vtx2_idx1)*(dim1==3)*(dim2==3);    //Ac=I
+
 
             } //dim2
             
@@ -470,14 +488,14 @@ kernel void vtx_init(const  float4  dx,
 
 
 //assemble
-kernel void vtx_assm(const  float4   dx,
-                     const  float8   mat,
-                     global float4   *vtx_xx,
-                     global float4   *vtx_uu,
-                     global float4   *vtx_vv,
-                     global float4   *vtx_aa,
-                     global float4   *vtx_ff,
-                     global float16  *A_vv)
+kernel void vtx_assm(const  float4          dx,
+                     const  float8          mat,
+                     global float4          *vtx_xx,
+                     global float4          *vtx_uu,
+                     global float4          *vtx_vv,
+                     global float4          *vtx_aa,
+                     global float4          *vtx_ff,
+                     global union flt4x4    *A_vv)
 {
     int3 vtx_dim = {get_global_size(0), get_global_size(1), get_global_size(2)};
     int3 ele_dim = vtx_dim - 1;
@@ -559,12 +577,11 @@ kernel void vtx_assm(const  float4   dx,
                     int3 vtx2_pos3 = ele1_pos2 + off2[vtx2_idx2];
                     int  vtx2_idx3 = fn_idx3(vtx2_pos3);
                     
-                    //block ptr
+                    //block idx
                     int idx1 = 27*vtx1_idx1 + vtx2_idx3;
-                    global float* vv = (global float*)&A_vv[idx1];
-                    
+
                     //poisson
-                    vv[15] += dot(bas_gg[vtx2_idx2], bas_gg[vtx1_idx2])*qw;
+                    A_vv[idx1].arr[3][3] += dot(bas_gg[vtx2_idx2], bas_gg[vtx1_idx2])*qw;
                     
 //                    //dim1
 //                    for(int dim1=0; dim1<3; dim1++)
@@ -587,9 +604,8 @@ kernel void vtx_assm(const  float4   dx,
 //                            //stress
 //                            float8 S2 = mec_S(E2, mat);
 //                            
-//                            //write uu
-//                            int idx2 = 4*dim1 + dim2;
-//                            vv[idx2] += sym_tip(S2, E1)*qw;
+//                            //write
+//                            A_vv[idx1].arr[dim1][dim2] += sym_tip(S2, E1)*qw;
 //
 //                        } //dim2
 //                        
@@ -610,8 +626,8 @@ kernel void vtx_assm(const  float4   dx,
 
 
 //zero dirichlet Au->I, vtx_ff->0
-kernel void vtx_bnd1(global float4  *vtx_ff,
-                     global float16 *A_vv)
+kernel void vtx_bnd1(global float4       *vtx_ff,
+                     global union flt4x4 *A_vv)
 {
     int3 vtx_dim = {get_global_size(0), get_global_size(1), get_global_size(2)};
     int3 vtx1_pos1  = {get_global_id(0), get_global_id(1), get_global_id(2)};
@@ -635,19 +651,17 @@ kernel void vtx_bnd1(global float4  *vtx_ff,
             int  vtx2_idx1 = fn_idx1(vtx2_pos1, vtx_dim);
             int  vtx2_bnd1 = fn_bnd1(vtx2_pos1, vtx_dim);
             
-            //local pointer
+            //block idx
             int idx1 = 27*vtx1_idx1 + vtx2_idx3;
-            global float* vv = (global float*)&A_vv[idx1];
-            
+
             //dim1
             for(int dim1=0; dim1<4; dim1++)
             {
                 //dim2
                 for(int dim2=0; dim2<4; dim2++)
                 {
-                    //Ku=I
-                    int idx2 = 4*dim1 + dim2;
-                    vv[idx2] = vtx2_bnd1*(vtx1_idx1==vtx2_idx1)*(dim1==dim2);
+                    //mtx
+                    A_vv[idx1].arr[dim1][dim2] = vtx2_bnd1*(vtx1_idx1==vtx2_idx1)*(dim1==dim2);
                     
                 } //dim2
                 
@@ -662,8 +676,8 @@ kernel void vtx_bnd1(global float4  *vtx_ff,
 
 
 //eliminate cols for symmetry
-kernel void vtx_elim(global float4  *vtx_ff,
-                     global float16 *A_vv)
+kernel void vtx_elim(global float4       *vtx_ff,
+                     global union flt4x4 *A_vv)
 {
     int3 vtx_dim = {get_global_size(0), get_global_size(1), get_global_size(2)};
     int3 vtx1_pos1  = {get_global_id(0), get_global_id(1), get_global_id(2)};
@@ -682,19 +696,17 @@ kernel void vtx_elim(global float4  *vtx_ff,
         //test bc
         if(b2)
         {
-            //blocks
+            //block
             int idx1 = 27*vtx1_idx1 + vtx2_idx3;
-            global float* vv = (global float*)&A_vv[idx1];
-            
+
             //dim1
             for(int dim1=0; dim1<4; dim1++)
             {
                 //dim2
                 for(int dim2=0; dim2<4; dim2++)
                 {
-                    //cols
-                    int idx2 = 4*dim1 + dim2;
-                    vv[idx2] = 0e0f; //vtx2_bnd1*(vtx1_idx1!=vtx2_idx1);
+                    //mtx
+                    A_vv[idx1].arr[dim1][dim2] = 0e0f; //vtx2_bnd1*(vtx1_idx1!=vtx2_idx1);
                     
                 } //dim2
                 
