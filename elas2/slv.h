@@ -9,19 +9,6 @@
 #define slv_h
 
 
-
-void dsp_vec(DenseVector_Float v)
-{
-    for(int i=0; i<v.count; i++)
-    {
-        printf("%+e ", v.data[i]);
-    }
-    printf("\n\n");
-    
-    return;
-}
-
-
 //solve
 int slv_mtx(struct prm_obj *prm, struct ocl_obj *ocl)
 {
@@ -61,18 +48,15 @@ int slv_mtx(struct prm_obj *prm, struct ocl_obj *ocl)
 //    options.atol = 1e-3f;
 //    options.rtol = 1e-3f;
 //    options.variant = SparseVariantGMRES;
-    SparseSolve(SparseGMRES(), A, f, u);
+//    SparseSolve(SparseGMRES(), A, f, u);
     
 //    //CG
 //    SparseCGOptions options;
 //    options.maxIterations = 4*prm->nv_tot;
 ////    options.atol = 1e-3f;
 ////    options.rtol = 1e-3f;
-//    SparseSolve(SparseConjugateGradient(), A, f, u);
+    SparseSolve(SparseConjugateGradient(), A, f, u);
 
-//    //LSMR
-//    SparseSolve(SparseLSMR(), A, f, u); //minres - symmetric
-    
 //    //QR
 //    SparseOpaqueFactorization_Float QR = SparseFactor(SparseFactorizationQR, A);
 //    SparseSolve(QR, f , u);

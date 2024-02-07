@@ -69,6 +69,7 @@ struct ocl_obj
     cl_kernel vtx_init;
     cl_kernel vtx_assm;
     cl_kernel vtx_bnd1;
+    cl_kernel vtx_bnd2;
     cl_kernel vtx_err1;
 };
 
@@ -173,6 +174,7 @@ void ocl_init(struct prm_obj *prm, struct ocl_obj *ocl)
     ocl->vtx_init = clCreateKernel(ocl->program, "vtx_init", &ocl->err);
     ocl->vtx_assm = clCreateKernel(ocl->program, "vtx_assm", &ocl->err);
     ocl->vtx_bnd1 = clCreateKernel(ocl->program, "vtx_bnd1", &ocl->err);
+    ocl->vtx_bnd2 = clCreateKernel(ocl->program, "vtx_bnd2", &ocl->err);
     ocl->vtx_err1 = clCreateKernel(ocl->program, "vtx_err1", &ocl->err);
 
     /*
@@ -235,6 +237,9 @@ void ocl_init(struct prm_obj *prm, struct ocl_obj *ocl)
     ocl->err = clSetKernelArg(ocl->vtx_bnd1,  0, sizeof(cl_mem),    (void*)&ocl->vtx_ff.dev);
     ocl->err = clSetKernelArg(ocl->vtx_bnd1,  1, sizeof(cl_mem),    (void*)&ocl->mtx_A.vv.dev);
     
+    ocl->err = clSetKernelArg(ocl->vtx_bnd2,  0, sizeof(cl_mem),    (void*)&ocl->vtx_ff.dev);
+    ocl->err = clSetKernelArg(ocl->vtx_bnd2,  1, sizeof(cl_mem),    (void*)&ocl->mtx_A.vv.dev);
+    
     ocl->err = clSetKernelArg(ocl->vtx_err1,  0, sizeof(cl_mem),    (void*)&ocl->vtx_uu.dev);
     ocl->err = clSetKernelArg(ocl->vtx_err1,  1, sizeof(cl_mem),    (void*)&ocl->vtx_vv.dev);
     ocl->err = clSetKernelArg(ocl->vtx_err1,  2, sizeof(cl_mem),    (void*)&ocl->vtx_aa.dev);
@@ -251,6 +256,8 @@ void ocl_final(struct prm_obj *msh, struct ocl_obj *ocl)
     ocl->err = clReleaseKernel(ocl->vtx_init);
     ocl->err = clReleaseKernel(ocl->vtx_assm);
     ocl->err = clReleaseKernel(ocl->vtx_bnd1);
+    ocl->err = clReleaseKernel(ocl->vtx_bnd2);
+    ocl->err = clReleaseKernel(ocl->vtx_err1);
     
     //memory
     ocl->err = clReleaseMemObject(ocl->vtx_xx.dev);
