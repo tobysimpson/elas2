@@ -44,22 +44,15 @@ int slv_mtx(struct prm_obj *prm, struct ocl_obj *ocl)
     //create
     SparseMatrix_Float A = SparseConvertFromCoordinate(num_rows, num_cols, blk_num, blk_sz, atts, ocl->mtx_A.ii.hst, ocl->mtx_A.jj.hst, ocl->mtx_A.vv.hst);  //duplicates sum
     
-    //vecs
-    DenseVector_Float u;
-    DenseVector_Float f;
+    //vecs (count,data)
+    DenseVector_Float u = {4*prm->nv_tot, (float*)ocl->vtx_uu.hst};
+    DenseVector_Float f = {4*prm->nv_tot, (float*)ocl->vtx_ff.hst};
     
-    u.count = 4*prm->nv_tot;
-    f.count = 4*prm->nv_tot;
-    
-    u.data = (float*)ocl->vtx_uu.hst;
-    f.data = (float*)ocl->vtx_ff.hst;
-    
-
     /*
-     ========================
-     solve
-     ========================
-     */
+    ========================
+    solve
+    ========================
+    */
     
 //    //GMRES
 //    SparseGMRESOptions options;

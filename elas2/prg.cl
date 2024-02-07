@@ -12,14 +12,7 @@
  ===================================
  */
 
-union flt4
-{
-    float4 vec;
-    float  arr[4];
-};
-
-
-union flt4x4
+union float4x4
 {
     float16 vec;
     float   arr[4][4];
@@ -433,7 +426,7 @@ kernel void vtx_init(const  float4          dx,
                      global float4          *vtx_ff,
                      global int             *A_ii,
                      global int             *A_jj,
-                     global union flt4x4    *A_vv)
+                     global union float4x4  *A_vv)
 {
     int3 vtx_dim = {get_global_size(0), get_global_size(1), get_global_size(2)};
     int3 vtx1_pos1 = {get_global_id(0)  , get_global_id(1),   get_global_id(2)};
@@ -495,7 +488,7 @@ kernel void vtx_assm(const  float4          dx,
                      global float4          *vtx_vv,
                      global float4          *vtx_aa,
                      global float4          *vtx_ff,
-                     global union flt4x4    *A_vv)
+                     global union float4x4  *A_vv)
 {
     int3 vtx_dim = {get_global_size(0), get_global_size(1), get_global_size(2)};
     int3 ele_dim = vtx_dim - 1;
@@ -626,8 +619,8 @@ kernel void vtx_assm(const  float4          dx,
 
 
 //zero dirichlet Au->I, vtx_ff->0
-kernel void vtx_bnd1(global float4       *vtx_ff,
-                     global union flt4x4 *A_vv)
+kernel void vtx_bnd1(global float4          *vtx_ff,
+                     global union float4x4  *A_vv)
 {
     int3 vtx_dim = {get_global_size(0), get_global_size(1), get_global_size(2)};
     int3 vtx1_pos1  = {get_global_id(0), get_global_id(1), get_global_id(2)};
@@ -676,8 +669,8 @@ kernel void vtx_bnd1(global float4       *vtx_ff,
 
 
 //eliminate cols for symmetry
-kernel void vtx_elim(global float4       *vtx_ff,
-                     global union flt4x4 *A_vv)
+kernel void vtx_elim(global float4          *vtx_ff,
+                     global union float4x4  *A_vv)
 {
     int3 vtx_dim = {get_global_size(0), get_global_size(1), get_global_size(2)};
     int3 vtx1_pos1  = {get_global_id(0), get_global_id(1), get_global_id(2)};
@@ -722,8 +715,8 @@ kernel void vtx_elim(global float4       *vtx_ff,
 
 //error
 kernel void vtx_err1(global float4  *vtx_uu,
-                      global float4  *vtx_vv,
-                      global float4  *vtx_aa)
+                     global float4  *vtx_vv,
+                     global float4  *vtx_aa)
 {
     int3 vtx_dim = {get_global_size(0), get_global_size(1), get_global_size(2)};
     int3 vtx1_pos1  = {get_global_id(0), get_global_id(1), get_global_id(2)};
