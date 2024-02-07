@@ -60,8 +60,6 @@ void prm_init(struct prm_obj *prm)
     prm->mat.s6 = 0e+0f;
     prm->mat.s7 = 0e+0f;
 
-    
-//    printf("mat %e %e %e %e\n", msh->mat.s0, msh->mat.s1, msh->mat.z, msh->mat.w);
     printf("mat.s0 %f\n", prm->mat.s0);
     printf("mat.s1 %f\n", prm->mat.s1);
     printf("mat.s2 %f\n", prm->mat.s2);

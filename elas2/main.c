@@ -46,7 +46,6 @@ int main(int argc, const char * argv[])
     //init
     ocl.err = clEnqueueNDRangeKernel(ocl.command_queue, ocl.vtx_init, 3, NULL, nv, NULL, 0, NULL, NULL);
     ocl.err = clEnqueueNDRangeKernel(ocl.command_queue, ocl.vtx_assm, 3, NULL, nv, NULL, 0, NULL, NULL);
-//    ocl.err = clEnqueueNDRangeKernel(ocl.command_queue, ocl.vtx_elim, 3, NULL, nv, NULL, 0, NULL, NULL);
     ocl.err = clEnqueueNDRangeKernel(ocl.command_queue, ocl.vtx_bnd1, 3, NULL, nv, NULL, 0, NULL, NULL);
 
     

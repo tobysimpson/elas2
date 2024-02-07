@@ -455,24 +455,14 @@ kernel void vtx_init(const  float4          dx,
         int idx1 = 27*vtx1_idx1 + vtx2_idx3;
         
         //coo
-        A_ii[idx1] = vtx2_bnd1*vtx1_idx1;
-        A_jj[idx1] = vtx2_bnd1*vtx2_idx1;
+        A_ii[idx1]      = vtx2_bnd1*vtx1_idx1;
+        A_jj[idx1]      = vtx2_bnd1*vtx2_idx1;
+        A_vv[idx1].vec  = 0e0f;
         
-        //dim1
-        for(int dim1=0; dim1<4; dim1++)
-        {
-            //dim2
-            for(int dim2=0; dim2<4; dim2++)
-            {
-                //mtx
-//                A_vv[idx1].arr[dim1][dim2] = vtx2_bnd1*(vtx1_idx1==vtx2_idx1)*(dim1==dim2);           //A=I
-                A_vv[idx1].arr[dim1][dim2] = vtx2_bnd1*(vtx1_idx1==vtx2_idx1)*(dim1==dim2)*(dim1<3);  //Au=I
-//                A_vv[idx1].arr[dim1][dim2] = vtx2_bnd1*(vtx1_idx1==vtx2_idx1)*(dim1==3)*(dim2==3);    //Ac=I
+        //Au=I
+        A_vv[idx1].vec.s05a = vtx2_bnd1*(vtx1_idx1==vtx2_idx1); //diag=05af
+        
 
-
-            } //dim2
-            
-        } //dim1
         
     } //vtx2
     
@@ -573,8 +563,8 @@ kernel void vtx_assm(const  float4          dx,
                     //block idx
                     int idx1 = 27*vtx1_idx1 + vtx2_idx3;
 
-                    //poisson
-                    A_vv[idx1].arr[3][3] += dot(bas_gg[vtx2_idx2], bas_gg[vtx1_idx2])*qw;
+                    //scalar poisson
+                    A_vv[idx1].vec.sf += dot(bas_gg[vtx2_idx2], bas_gg[vtx1_idx2])*qw;
                     
 //                    //dim1
 //                    for(int dim1=0; dim1<3; dim1++)
@@ -618,7 +608,7 @@ kernel void vtx_assm(const  float4          dx,
 
 
 
-//zero dirichlet Au->I, vtx_ff->0
+//zero dirichlet
 kernel void vtx_bnd1(global float4          *vtx_ff,
                      global union float4x4  *A_vv)
 {
@@ -631,38 +621,40 @@ kernel void vtx_bnd1(global float4          *vtx_ff,
     int b1 = fn_bnd2(vtx1_pos1, vtx_dim);            //all sides
     
 
-    //K=I, vtx_ff=0
-    if(b1>0)
-    {
-        //vtx_ff=0
-        vtx_ff[vtx1_idx1] = (float4){0e0f, 0e0f, 0e0f, 0e0f};
-        
-        //vtx2
-        for(int vtx2_idx3=0; vtx2_idx3<27; vtx2_idx3++)
-        {
-            int3 vtx2_pos1 = vtx1_pos1 + off3[vtx2_idx3] - 1;
-            int  vtx2_idx1 = fn_idx1(vtx2_pos1, vtx_dim);
-            int  vtx2_bnd1 = fn_bnd1(vtx2_pos1, vtx_dim);
-            
-            //block idx
-            int idx1 = 27*vtx1_idx1 + vtx2_idx3;
 
-            //dim1
-            for(int dim1=0; dim1<4; dim1++)
-            {
-                //dim2
-                for(int dim2=0; dim2<4; dim2++)
-                {
-                    //mtx
-                    A_vv[idx1].arr[dim1][dim2] = vtx2_bnd1*(vtx1_idx1==vtx2_idx1)*(dim1==dim2);
-                    
-                } //dim2
-                
-            } //dim1
-            
-        } //vtx2
+    //vtx2
+    for(int vtx2_idx3=0; vtx2_idx3<27; vtx2_idx3++)
+    {
+        int3 vtx2_pos1 = vtx1_pos1 + off3[vtx2_idx3] - 1;
+        int  vtx2_idx1 = fn_idx1(vtx2_pos1, vtx_dim);
+        int  vtx2_bnd1 = fn_bnd1(vtx2_pos1, vtx_dim);   //in domain
         
-    } //if
+        //block idx
+        int idx1 = 27*vtx1_idx1 + vtx2_idx3;
+        
+
+        //vtx1
+        if(b1)
+        {
+            //rhs=0
+            vtx_ff[vtx1_idx1] = 0e0f;
+            
+            //row=>I
+            A_vv[idx1].vec = 0e0f;
+            A_vv[idx1].vec.s05af = vtx2_bnd1*(vtx1_idx1==vtx2_idx1); //diag = vec.s05af
+        }
+        
+        int b2 = fn_bnd2(vtx2_pos1, vtx_dim);
+        
+        //vtx2 zero cols (xor)
+        if((!b1)&&(b2))
+        {
+            A_vv[idx1].vec = 0e0f; //col=>0
+        }
+
+    } //vtx2
+        
+
     
     return;
 }
