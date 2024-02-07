@@ -30,7 +30,7 @@ struct prm_obj
 void prm_init(struct prm_obj *prm)
 {
     //dim
-    prm->ele_dim.x = 8;
+    prm->ele_dim.x = 10;
     prm->ele_dim.y = prm->ele_dim.x;
     prm->ele_dim.z = prm->ele_dim.x;
     
@@ -50,8 +50,8 @@ void prm_init(struct prm_obj *prm)
     
     printf("dx %+f %+f %+f %+f\n", prm->dx.x, prm->dx.y, prm->dx.z, prm->dx.w);
     
-    //material
-    float mat_E = 1e+1f;    //Youngs    kPa = 1 mg mm^-1 ms^-2
+    //youngs, poisson
+    float mat_E = 1e+1f;    //Youngs    //kPa = 1 mg mm^-1 ms^-2
     float mat_v = 0.2f;     //Poisson
     
     //material params

@@ -517,19 +517,19 @@ kernel void vtx_assm(const  float4          dx,
 //            mem_lr2(uu3, uu2, ele1_pos2);
 
             //qpt1 (change limit with scheme 1,8,27)
-            for(int qpt1=0; qpt1<8; qpt1++)
+            for(int qpt1=0; qpt1<27; qpt1++)
             {
 //                //1pt
 //                float3 qp = (float3){qp1,qp1,qp1};
 //                float  qw = qw1*qw1*qw1;
                 
-                //2pt
-                float3 qp = (float3){qp2[off2[qpt1].x], qp2[off2[qpt1].y], qp2[off2[qpt1].z]};
-                float  qw = qw2[off2[qpt1].x]*qw2[off2[qpt1].y]*qw2[off2[qpt1].z];
+//                //2pt
+//                float3 qp = (float3){qp2[off2[qpt1].x], qp2[off2[qpt1].y], qp2[off2[qpt1].z]};
+//                float  qw = qw2[off2[qpt1].x]*qw2[off2[qpt1].y]*qw2[off2[qpt1].z];
                 
-//                //3pt
-//                float3 qp = (float3){qp3[off3[qpt1].x], qp3[off3[qpt1].y], qp3[off3[qpt1].z]};
-//                float  qw = qw3[off3[qpt1].x]*qw3[off3[qpt1].y]*qw3[off3[qpt1].z];
+                //3pt
+                float3 qp = (float3){qp3[off3[qpt1].x], qp3[off3[qpt1].y], qp3[off3[qpt1].z]};
+                float  qw = qw3[off3[qpt1].x]*qw3[off3[qpt1].y]*qw3[off3[qpt1].z];
                 
                 //vlm
                 qw *= vlm;
